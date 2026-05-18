@@ -1,8 +1,4 @@
-import type { promises } from "node:dns";
 import pool from "../db.js";
-import { Result } from "pg";
-import { count } from "node:console";
-import { getDefaultHighWaterMark } from "node:stream";
 
 interface ProductFilters {
     search?: string;
