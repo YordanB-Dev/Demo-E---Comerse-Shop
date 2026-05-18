@@ -95,10 +95,10 @@ export const productRepository = {
     },
 
     async createProduct(data: any) {
-        const [name, description, price, stock, categoryId] = data;
+        const {name, description, price, stock, categoryId} = data;
 
         const result = await pool.query(
-            `ISNERT INTO products (name, description, price, stock_quantity, categoryId)
+            `INSERT INTO products (name, description, price, stock_quantity, categoryId)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *`,
             [name, description, price, stock, categoryId]
