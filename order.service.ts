@@ -50,7 +50,7 @@ export const orderService: any = {
         return order;
     },
 
-    async getORderById(orderId: number, userId: number) {
+    async getOrderById(orderId: number, userId: number) {
         const order = await orderRepository.findById(orderId);
 
         if (!order) {
