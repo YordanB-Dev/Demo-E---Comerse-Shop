@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import asyncHandler from "../middleware/asyncHandler.js";
 import productService from "../services/task.service.js";
-import { profileEnd } from "node:console";
 
 
 export const productController = {
