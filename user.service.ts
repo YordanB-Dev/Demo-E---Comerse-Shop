@@ -37,7 +37,7 @@ export const login = async (email: string, password: string) => {
 
   const isMatch = await bcrypt.compare(password, user.password); 
   if (!isMatch) {
-    throw new AppError("Invalid email or password", 401);
+    throw new AppError("Invalid password", 401);
   }
 
   const secret = process.env.JWT_SECRET;
