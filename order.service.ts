@@ -14,7 +14,7 @@ interface CreateOrderInput {
 
 export const orderService: any = {
     async createOrder(input: CreateOrderInput) {
-        if (!input || input.items.length) {
+        if (!input || input.items.length === 0) {
             throw new AppError(`Order need to be at least 1 product`, 400);
         }
 
