@@ -23,7 +23,7 @@ export const orderController = {
         const userId = (req as any).user.id
         const order = await orderService.getByID(orderId, userId);
         return res.status(200).json(order);
-    }),
+    })
 };
 
 export default orderController;
