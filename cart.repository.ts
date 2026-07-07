@@ -1,8 +1,6 @@
-import { runInNewContext } from "node:vm";
 import productController from "../controllers/product.controller.js";
 import pool from "../db.js";
 import { AppError } from "../middleware/types/AppError.js";
-
 
 interface Cart {
     id: number,
