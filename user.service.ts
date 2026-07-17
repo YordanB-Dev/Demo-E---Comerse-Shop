@@ -1,55 +1,58 @@
-import repo from "../repositories/user.repository.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { AppError } from "../middleware/types/AppError.js";
+import userRepository from "../repositories/user.repository.js";
+
 
 interface User {
-  id: number;
-  email: string;
-  password: string;
-  username: string
+  id: number,
+  email: string,
+  password: string,
+  username: string;
 }
 
 export const register = async (email: string, password: string, username: string) => {
-  if (!email?.trim() || !password?.trim() || !username.trim()) {
-    throw new AppError("Email and password also and username are required", 400);
+  if (!email?.trim() || !password?.trim() || !username?.trim()) {
+    throw new AppError(`Missing required fields`, 404);
   }
 
-  const existingUser = await repo.findUserByEmail(email);
+  const existingUser = await userRepository.findUserByEmail(email);
   if (existingUser) {
-    throw new AppError("This email is already in use", 400);
+    throw new AppError(`Email alredy in use`, 400);
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await repo.createUser(email, hashedPassword, username);
+  const user = await userRepository.createUser(email, hashedPassword, username);
 
   return {
     id: user.id,
-    email: email
+    email: user.email
   };
 };
 
-export const login = async (email: string, password: string) => {
-  const user = await repo.findUserByEmail(email);
+const login = async (email: string, password: string) => {
+  const user = await userRepository.findUserByEmail(email);
   if (!user) {
-    throw new AppError("Invalid email or password", 401);
+    throw new AppError(`Invalid user`, 400);
   }
 
-  const isMatch = await bcrypt.compare(password, user.password); 
+  const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    throw new AppError("Invalid password", 401);
+    throw new AppError(`Invalid password`, 400);
   }
 
   const secret = process.env.JWT_SECRET;
-  if (!secret) throw new AppError("JWT_SECRET is not defined", 500);
+  if (!secret) {
+    throw new AppError(`JWT_SECRET  is not defined`, 500);
+  }
 
   const token = jwt.sign(
-    { id: user.id, email: user.email },
+    {id: user.id, email: user.email, role: user.role},
     secret,
-    { expiresIn: "1h" }
+    {expiresIn: `1d`}
   );
 
-  return { 
+   return { 
     token,
     user: { id: user.id, email: user.email }
   };
