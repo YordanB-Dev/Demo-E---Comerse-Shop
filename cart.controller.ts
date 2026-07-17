@@ -2,6 +2,12 @@ import type { Request, Response, NextFunction } from "express";
 import cartSerivce from "../services/cart.serivce.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 
+interface authBody {
+    userId: number,
+    productId: number,
+    quantity: number;
+}
+
 export const cartController = {
 
     getCart: asyncHandler(async(req: Request, res: Response) => {
@@ -23,6 +29,6 @@ export const cartController = {
         const result = await cartSerivce.removeItem(userId, productId, quantity);
         return res.status(200).json(result);
     })
-}
+};
 
-export default cartController
+export default cartController;
