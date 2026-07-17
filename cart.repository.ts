@@ -1,6 +1,6 @@
-import productController from "../controllers/product.controller.js";
 import pool from "../db.js";
 import { AppError } from "../middleware/types/AppError.js";
+
 
 interface Cart {
     id: number,
@@ -21,8 +21,8 @@ interface CartItemWithProduct extends CartItem {
     price: number
 };
 
-export const cartRepository = {
-    async getOrCreateCart(userId: number): Promise<Cart> {
+export const cartRepsoitory = {
+    async getOrCreatCart(userId: number): Promise<Cart> {
         const existing = await pool.query<Cart> (
             `SELECT * FROM carts WHERE user_id = $1`,
             [userId]
@@ -33,22 +33,22 @@ export const cartRepository = {
         }
 
         const newCart = await pool.query<Cart> (
-            `INSERT INTO carts (user_id) VALUES ($1) RETURNING *`,
+            `INSERT INTO carts (userId) VALUES ($1) RETURNING *`,
             [userId]
         );
 
-        if (!newCart.rows[0]) {
-            throw new AppError(`Failed to create cart`, 500);
+        if (!newCart) {
+            throw new AppError(`Cart was not created`, 500);
         }
 
-        return newCart.rows[0];
+        return newCart.rows[0]!;
     },
 
     async addItem(cartId: number, productId: number, quantity: number): Promise<CartItem> {
         const result = await pool.query<CartItem> (
             `INSERT INTO cart_items (cart_id, product_id, quantity)
             VALUES ($1, $2, $3)
-            ON CONFLICT (cart_id, product_id)
+            ON CONFLICT (cart_Id, product_id, quantity)
             DO UPDATE SET quantity = cart_items.quantity + EXCLUDED.quantity
             RETURNING *`,
             [cartId, productId, quantity]
@@ -63,7 +63,7 @@ export const cartRepository = {
 
     async removeItem(cartId: number, productId: number, quantity: number): Promise<void> {
         await pool.query (
-            `DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2 AND quantity = $3`,
+            `DELETE FROM cart_items WHERE cart_id = $1 AND productId = $2`,
             [cartId, productId, quantity]
         );
     },
@@ -72,7 +72,7 @@ export const cartRepository = {
         const result = await pool.query<CartItemWithProduct> (
             `SELECT ci.*, p.name, p.price
             FROM cart_items ci
-            JOIN products p ON ci.product_id = p.id
+            JOIN products = p ON ci.products_id = p.id
             WHERE ci.cart_id = $1`,
             [cartId]
         );
@@ -81,11 +81,11 @@ export const cartRepository = {
     },
 
     async clearCart(cartId: number): Promise<void> {
-        await pool.query(
+        await pool.query (
             `DELETE FROM cart_items WHERE cart_id = $1`,
             [cartId]
         );
     }
 };
 
-export default cartRepository;
+export default cartRepsoitory;
