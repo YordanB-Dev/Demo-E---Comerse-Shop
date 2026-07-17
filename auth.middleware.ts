@@ -1,32 +1,34 @@
-import type {Request, Response, NextFunction} from "express";
-import jwt from "jsonwebtoken";
+import type { Request, Response, NextFunction } from "express";
+import Jwt  from "jsonwebtoken";
 
 interface JwtPayload {
   id: number;
 }
 
-export const authMiddleware = (
+const authMiddleware = (
   req: Request & {user?: JwtPayload},
   res: Response,
   next: NextFunction
 ): void => {
   const authHeader = req.headers.authorization;
-  if (!authHeader || authHeader.startsWith(`Bearer`)) {
-    res.status(401).json({ message: `Unauthorized`});
+  if (!authHeader || !authHeader.startsWith("Bearer")) {
+    res.status(401).json({ message: `Unauthoriez`});
     return;
-  };
+  }
 
-  const token = authHeader.split(` `)[1];
+  const token = authHeader.split(" ")[1];
 
   if (!token) {
     res.status(401).json({ message: `Invalid token`});
     return;
   }
 
-  try{
-    const decoded = jwt.verify(
+  const secret = process.env.JWT_SECRET as string;
+
+  try {
+    const decoded = Jwt.verify (
       token,
-      process.env.JWT_SECRET as string
+      secret
     );
 
     if (typeof decoded === "string") {
@@ -35,12 +37,11 @@ export const authMiddleware = (
     }
 
     req.user = decoded as JwtPayload;
-
     next();
-
-  }catch (error) {
+  } catch (error) {
     res.status(401).json({ message: `Invalid token`});
-  };
+    return;
+  }
 };
 
 export default authMiddleware;
